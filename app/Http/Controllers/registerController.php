@@ -27,7 +27,7 @@ class registerController extends Controller
       return $this->response->error('', $exception->getMessage(), HttpStatusCodes::HTTP_BAD_REQUEST);
     }
     
-    return $this->response->success('', $user);
+    return $this->response->success('User registered successfully.', $user);
   }
 }
 
