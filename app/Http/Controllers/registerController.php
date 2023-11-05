@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
-use Illuminate\Support\Facades\Session;
-
+use App\Services\RegisterService;
+use App\Helpers\HttpStatusCodes;
 use App\Models\User;
 
 class registerController extends Controller
@@ -17,24 +19,21 @@ class registerController extends Controller
     return view('/register');
   }
 
-  public function store(RegisterRequest $request): RedirectResponse
+  public function store(RegisterRequest $request, RegisterService $registerService): JsonResponse
   {
-    /// hashing the password before saving it to the database
-    $hashedPassword = Hash::make($request->password);
-
-    // creating new user
-    $user = User::create([
-      'name' => $request->name,
-      'email' => $request->email,
-      'password' => $hashedPassword
-    ]);
-
-    auth()->login($user);
-
-    return redirect('/login_form');
-
+    try {
+      $user = $registerService->registerationDetails($request->validated());
+    } catch (\Exception $exception) {
+      return $this->response->error('', $exception->getMessage(), HttpStatusCodes::HTTP_BAD_REQUEST);
+    }
+    
+    return $this->response->success('', $user);
   }
 }
+
+
+
+
 
 
 
